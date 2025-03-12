@@ -1,26 +1,35 @@
-# Menggunakan versi Go yang sesuai dengan go.mod
+# Stage 1: Build the Go app
 FROM golang:1.23.4 AS builder
 
-# Set working directory dalam container
+# Set working directory
 WORKDIR /app
 
-# Copy semua file ke dalam container
-COPY . .
+# Copy Go modules first to leverage Docker cache
+COPY go.mod go.sum ./
 
-# Unduh dependency yang diperlukan
+# Download dependencies
 RUN go mod tidy
 
-# Build aplikasi
-RUN go build -o myapp
+# Copy the rest of the application files
+COPY . .
 
-# Stage kedua: menjalankan aplikasi dengan image minimal
+# Build application
+RUN go build -o myapp ./coin-api
+
+# Stage 2: Run the application
 FROM debian:latest
 
 # Set working directory
 WORKDIR /root/
 
-# Copy binary dari stage builder ke stage runtime
+# Copy the built binary from builder
 COPY --from=builder /app/myapp .
 
-# Jalankan aplikasi
+# Ensure the binary is executable
+RUN chmod +x /root/myapp
+
+# Expose the port (match your app's listening port)
+EXPOSE 8080
+
+# Run the application
 CMD ["/root/myapp"]
