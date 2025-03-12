@@ -57,7 +57,7 @@ func handleWebSocketMessage(message []byte) {
 		candle := response.Data.Kline
 		symbol := response.Data.Symbol
 		openPrice, closePrice := parseFloat(candle.Open), parseFloat(candle.Close)
-		if ((closePrice-openPrice)/openPrice)*100 >= 10 {
+		if ((closePrice-openPrice)/openPrice)*100 >= 5 {
 			result.Store(symbol, map[string]float64{"open": openPrice, "close": closePrice})
 			notifyUser(symbol, openPrice, closePrice)
 		}
