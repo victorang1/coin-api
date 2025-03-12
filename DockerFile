@@ -1,0 +1,26 @@
+# Menggunakan versi Go yang sesuai dengan go.mod
+FROM golang:1.23.4 AS builder
+
+# Set working directory dalam container
+WORKDIR /app
+
+# Copy semua file ke dalam container
+COPY . .
+
+# Unduh dependency yang diperlukan
+RUN go mod tidy
+
+# Build aplikasi
+RUN go build -o myapp
+
+# Stage kedua: menjalankan aplikasi dengan image minimal
+FROM debian:latest
+
+# Set working directory
+WORKDIR /root/
+
+# Copy binary dari stage builder ke stage runtime
+COPY --from=builder /app/myapp .
+
+# Jalankan aplikasi
+CMD ["/root/myapp"]
