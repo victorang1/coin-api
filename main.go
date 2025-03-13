@@ -41,7 +41,8 @@ type BinanceResponse struct {
 }
 
 func notifyUser(symbol string, openPrice, closePrice float64) {
-	message := fmt.Sprintf("🚀 %s gained more than 10%%! Open: %.2f, Close: %.2f", symbol, openPrice, closePrice)
+	percentageChange := ((closePrice - openPrice) / openPrice) * 100
+	message := fmt.Sprintf("🚀 %s changed by %.2f%%! Open: %.2f, Close: %.2f", symbol, percentageChange, openPrice, closePrice)
 	sendToTelegram(message)
 	log.Println(message)
 }
@@ -160,6 +161,8 @@ func parseFloat(s string) float64 {
 func main() {
 	symbols := fetchTradingPairs()
 	log.Printf("Total Futures Symbols: %d", len(symbols))
+
+	fmt.Println(symbols)
 
 	for i := 0; i < len(symbols); i += maxSymbolsPerWS {
 		end := i + maxSymbolsPerWS
